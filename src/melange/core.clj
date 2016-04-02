@@ -12,3 +12,6 @@
 
 (defn handle-event [state event]
   (event/handle-event state event))
+
+(defn apply-events [state events]
+  (reduce handle-event state events))

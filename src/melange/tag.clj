@@ -19,6 +19,14 @@
   [state [_ {:keys [id key]}]]
   (remove-variable-from-thing state [:tags id key]))
 
+(defmethod handle-event :child-added-to-tag
+  [state [_ {:keys [id child-id]}]]
+  (add-child-to-thing state [:tags id child-id]))
+
+(defmethod handle-event :child-removed-from-tag
+  [state [_ {:keys [id child-id]}]]
+  (remove-child-from-thing state [:tags id child-id]))
+
 (defmethod handle-command :add-tag
   [state [_ {:keys [name]}]]
   (if (name-exists? name (:tags state))

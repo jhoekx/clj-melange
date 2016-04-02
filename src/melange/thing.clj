@@ -11,9 +11,10 @@
        (not= 0)))
 
 (defn- make-thing [id name]
-  {:id   id
-   :name name
-   :vars {}})
+  {:id       id
+   :name     name
+   :vars     {}
+   :children []})
 
 (defn add-thing [state [thing-type id name]]
   (->> (make-thing id name)
@@ -39,4 +40,28 @@
 (defn remove-variable-from-thing [state [thing-type id key]]
   (->> (thing-type state)
        (map (change-thing id #(assoc % :vars (dissoc (:vars %) key))))
+       (assoc state thing-type)))
+
+(defn- add-child [thing child-id]
+  (->> (conj (:children thing) child-id)
+       (assoc thing :children)))
+
+(defn add-child-to-thing [state [thing-type id child-id]]
+  (->> (thing-type state)
+       (map (change-thing id #(add-child % child-id)))
+       (assoc state thing-type)))
+
+(defn- remove-child [thing child-id]
+  (->> (:children thing)
+       (filter #(not= child-id %))
+       (assoc thing :children)))
+
+(defn remove-child-from-thing [state [thing-type id child-id]]
+  (->> (thing-type state)
+       (map (change-thing id #(remove-child % child-id)))
+       (assoc state thing-type)))
+
+(defn remove-child-from-all [state [thing-type child-id]]
+  (->> (thing-type state)
+       (map #(remove-child % child-id))
        (assoc state thing-type)))

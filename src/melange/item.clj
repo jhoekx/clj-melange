@@ -8,7 +8,8 @@
 
 (defmethod handle-event :item-removed
   [state [_ {:keys [id]}]]
-  (remove-thing state [:items id]))
+  (-> (remove-thing state [:items id])
+      (remove-child-from-all [:tags id])))
 
 (defmethod handle-event :variable-added-to-item
   [state [_ {:keys [id key value]}]]
