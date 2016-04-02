@@ -1,5 +1,6 @@
 (ns melange.tag
-  (:require [melange.event :refer [handle-event]]
+  (:require [melange.command :refer [handle-command]]
+            [melange.event :refer [handle-event]]
             [melange.thing :refer :all]))
 
 (defmethod handle-event :tag-added
@@ -17,3 +18,9 @@
 (defmethod handle-event :variable-removed-from-tag
   [state [_ {:keys [id key]}]]
   (remove-variable-from-thing state [:tags id key]))
+
+(defmethod handle-command :add-tag
+  [state [_ {:keys [name]}]]
+  (if (name-exists? name (:tags state))
+    (throw (RuntimeException. "Tag already exists"))
+    [:tag-added (generate-id) name]))

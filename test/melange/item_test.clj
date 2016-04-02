@@ -1,4 +1,4 @@
-(ns melange.items-test
+(ns melange.item-test
   (:require [clojure.test :refer :all]
             [melange.core :refer :all]))
 

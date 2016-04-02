@@ -1,6 +1,20 @@
-(ns melange.tags-test
+(ns melange.tag-test
   (:require [clojure.test :refer :all]
             [melange.core :refer :all]))
+
+(defn- uuid? [val]
+  (= 36 (count (.toString val))))
+
+(deftest tag-commands
+  (let [tag-added (handle-command default-state [:add-tag {:name "tag"}])]
+    (testing "Add a tag"
+      (is (= 3 (count tag-added)))
+      (is (= :tag-added (first tag-added)))
+      (is (uuid? (second tag-added)))
+      (is (= "tag" (last tag-added)))))
+  (let [state-with-tag (handle-event default-state [:tag-added {:id "1" :name "tag"}])]
+    (testing "Do not allow duplicate tag names"
+      (is (thrown? RuntimeException (handle-command state-with-tag [:add-tag {:name "tag"}]))))))
 
 (deftest tags
   (let [one-tag (handle-event default-state [:tag-added {:id "1" :name "tag1"}])

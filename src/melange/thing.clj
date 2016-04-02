@@ -1,4 +1,14 @@
-(ns melange.thing)
+(ns melange.thing
+  (:import (java.util UUID)))
+
+(defn generate-id []
+  (str (UUID/randomUUID)))
+
+(defn name-exists? [name coll]
+  (->> coll
+       (filter #(= name (:name %)))
+       count
+       (not= 0)))
 
 (defn- make-thing [id name]
   {:id   id
