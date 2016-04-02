@@ -37,3 +37,24 @@
     (testing "Remove a variable"
       (is (= 1 (-> (find-item-by-name "item" removed-var) :vars count)))
       (is (= [1 2 3] (-> (find-item-by-name "item" removed-var) :vars (get "list")))))))
+
+(deftest item-children
+  (let [items (apply-events default-state [[:item-added {:id "1" :name "item1"}]
+                                           [:item-added {:id "2" :name "item2"}]
+                                           [:item-added {:id "3" :name "item3"}]])
+        first-child (handle-event items [:child-added-to-item {:id "1" :child-id "2"}])
+        second-child (handle-event first-child [:child-added-to-item {:id "1" :child-id "3"}])]
+    (testing "Add a child"
+      (is (= ["2"] (-> (find-item-by-name "item1" first-child) :children))))
+    (testing "Adding a second child"
+      (is (= 2 (-> (find-item-by-name "item1" second-child) :children count)))
+      (is (= ["2" "3"] (-> (find-item-by-name "item1" second-child) :children))))
+    (testing "Removing a child"
+      (let [removed-child (handle-event second-child [:child-removed-from-item {:id       "1"
+                                                                                :child-id "3"}])]
+        (is (= 1 (-> (find-item-by-name "item1" removed-child) :children count)))
+        (is (= ["2"] (-> (find-item-by-name "item1" removed-child) :children)))))
+    (testing "Removing an item removes it from other items"
+      (let [removed-child (handle-event second-child [:item-removed {:id "3"}])]
+        (is (= 1 (-> (find-item-by-name "item1" removed-child) :children count)))
+        (is (= ["2"] (-> (find-item-by-name "item1" removed-child) :children)))))))
