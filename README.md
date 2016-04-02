@@ -1,4 +1,5 @@
 # melange
+[![Build Status](https://travis-ci.org/jhoekx/clj-melange.svg?branch=master)](https://travis-ci.org/jhoekx/clj-melange)
 
 A lightweight CMDB and Ansible inventory.
 
