@@ -43,33 +43,41 @@
                                                                  :key   "list"
                                                                  :value [1 2 3]}])
         removed-var (handle-event list-var [:variable-removed-from-tag {:id  "1"
-                                                                        :key "text"}])]
+                                                                        :key "text"}])
+        get-variable (fn [state key]
+                       (-> (find-tag-by-name "tag" state) :vars (get key)))
+        count-variables (fn [state]
+                          (-> (find-tag-by-name "tag" state) :vars count))]
     (testing "Add a variable"
-      (is (= "blah" (-> (find-tag-by-name "tag" text-var) :vars (get "text")))))
+      (is (= "blah" (get-variable text-var "text"))))
     (testing "Add a second variable"
-      (is (= 2 (-> (find-tag-by-name "tag" list-var) :vars count)))
-      (is (= [1 2 3] (-> (find-tag-by-name "tag" list-var) :vars (get "list")))))
+      (is (= 2 (count-variables list-var)))
+      (is (= [1 2 3] (get-variable list-var "list"))))
     (testing "Remove a variable"
-      (is (= 1 (-> (find-tag-by-name "tag" removed-var) :vars count)))
-      (is (= [1 2 3] (-> (find-tag-by-name "tag" removed-var) :vars (get "list")))))))
+      (is (= 1 (count-variables removed-var)))
+      (is (= [1 2 3] (get-variable removed-var "list"))))))
 
 (deftest tag-children
   (let [tag-and-item (apply-events default-state [[:tag-added {:id "1" :name "tag"}]
                                                   [:item-added {:id "2" :name "item1"}]
                                                   [:item-added {:id "3" :name "item2"}]])
+        get-children (fn [state]
+                       (-> (find-tag-by-name "tag" state) :children))
+        count-children (fn [state]
+                         (-> (find-tag-by-name "tag" state) :children count))
         child (handle-event tag-and-item [:child-added-to-tag {:id "1" :child-id "2"}])
         second-child (handle-event child [:child-added-to-tag {:id "1" :child-id "3"}])]
     (testing "Add a child"
-      (is (= ["2"] (-> (find-tag-by-name "tag" child) :children))))
+      (is (= ["2"] (get-children child))))
     (testing "Add a second child"
-      (is (= 2 (-> (find-tag-by-name "tag" second-child) :children count)))
-      (is (= ["2" "3"] (-> (find-tag-by-name "tag" second-child) :children))))
+      (is (= 2 (count-children second-child)))
+      (is (= ["2" "3"] (get-children second-child))))
     (testing "Remove a child from a tag"
       (let [removed-child (handle-event second-child [:child-removed-from-tag {:id       "1"
                                                                                :child-id "2"}])]
-        (is (= 1 (-> (find-tag-by-name "tag" removed-child) :children count)))
-        (is (= ["3"] (-> (find-tag-by-name "tag" removed-child) :children)))))
+        (is (= 1 (count-children removed-child)))
+        (is (= ["3"] (get-children removed-child)))))
     (testing "Removing a child removes it from all tags"
       (let [removed-child (handle-event second-child [:item-removed {:id "2"}])]
-        (is (= 1 (-> (find-tag-by-name "tag" removed-child) :children count)))
-        (is (= ["3"] (-> (find-tag-by-name "tag" removed-child) :children)))))))
+        (is (= 1 (count-children removed-child)))
+        (is (= ["3"] (get-children removed-child)))))))
