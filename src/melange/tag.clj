@@ -31,4 +31,5 @@
   [state [_ {:keys [name]}]]
   (if (name-exists? name (:tags state))
     (throw (RuntimeException. "Tag already exists"))
-    [:tag-added (generate-id) name]))
+    [:tag-added {:id   (generate-id)
+                 :name name}]))

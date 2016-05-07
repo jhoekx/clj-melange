@@ -8,10 +8,10 @@
 (deftest tag-commands
   (let [tag-added (handle-command default-state [:add-tag {:name "tag"}])]
     (testing "Add a tag"
-      (is (= 3 (count tag-added)))
+      (is (= 2 (count tag-added)))
       (is (= :tag-added (first tag-added)))
-      (is (uuid? (second tag-added)))
-      (is (= "tag" (last tag-added)))))
+      (is (uuid? (:id (last tag-added))))
+      (is (= "tag" (:name (last tag-added))))))
   (let [state-with-tag (handle-event default-state [:tag-added {:id "1" :name "tag"}])]
     (testing "Do not allow duplicate tag names"
       (is (thrown? RuntimeException (handle-command state-with-tag [:add-tag {:name "tag"}]))))))
