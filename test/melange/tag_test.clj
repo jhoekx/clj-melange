@@ -14,7 +14,23 @@
       (is (= "tag" (:name (last tag-added))))))
   (let [state-with-tag (handle-event default-state [:tag-added {:id "1" :name "tag"}])]
     (testing "Do not allow duplicate tag names"
-      (is (thrown? RuntimeException (handle-command state-with-tag [:add-tag {:name "tag"}]))))))
+      (is (thrown? RuntimeException (handle-command state-with-tag [:add-tag {:name "tag"}])))))
+
+  (let [state-with-tag (handle-event default-state [:tag-added {:id "1" :name "tag"}])
+        variable-added (handle-command state-with-tag [:add-variable-to-tag {:id    "1"
+                                                                             :key   "text"
+                                                                             :value "blah"}])]
+    (testing "Add a variable to a tag"
+      (is (= :variable-added-to-tag (first variable-added)))
+      (is (= "1" (:id (last variable-added))))
+      (is (= "text" (:key (last variable-added))))
+      (is (= "blah" (:value (last variable-added))))))
+  (let [state-with-tag (handle-event default-state [:tag-added {:id "1" :name "tag"}])]
+    (testing "Do not allow adding a variable to tags that don't exist"
+      (is (thrown? RuntimeException (handle-command state-with-tag [:add-variable-to-tag {:id    "2"
+                                                                                          :key   "text"
+                                                                                          :value "blah"}]))))))
+
 
 (deftest tags
   (let [one-tag (handle-event default-state [:tag-added {:id "1" :name "tag1"}])

@@ -33,3 +33,14 @@
     (throw (RuntimeException. "Tag already exists"))
     [:tag-added {:id   (generate-id)
                  :name name}]))
+
+(defn- tag-exists? [state id]
+  (some #(= id (:id %)) (:tags state)))
+
+(defmethod handle-command :add-variable-to-tag
+  [state [_ {:keys [id key value]}]]
+  (if (not (tag-exists? state id))
+    (throw (RuntimeException. "Tag does not exist"))
+    [:variable-added-to-tag {:id    id
+                             :key   key
+                             :value value}]))
